@@ -1,3 +1,9 @@
+# Marie ✨🌸
+
+Hi Marie! 👋 This is a little demo so you can see how Claude Code works right inside VS Code — ask it to explain code, make edits, or run commands, and watch it go. Hope you like it! 💜
+
+---
+
 # DevOpsMedia self-hosting
 
 Migrating our self-hosted apps (Authentik, GLPI, NextCloud, internal PHP/Express+React apps) off ad-hoc setups and onto Dokploy, first on a test mini PC, then on the Dell PowerEdge R630 we bought for production.
