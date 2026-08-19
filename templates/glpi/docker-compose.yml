@@ -1,0 +1,41 @@
+# ============================================================================
+# GLPI — generic template
+#
+# You said you already tweaked your own Dockerfile/compose for GLPI, so this
+# is a skeleton, not an exact match. Steps:
+#   1. Drop your real Dockerfile (if any) into this folder as ./Dockerfile
+#   2. Replace `image:` below with `build: .` if you build a custom image
+#   3. Match DB_NAME/DB_USER here to backup.conf in this same folder
+# ============================================================================
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${GLPI_DB_ROOT_PASS}
+      MARIADB_DATABASE: ${GLPI_DB_NAME:-glpi}
+      MARIADB_USER: ${GLPI_DB_USER:-glpi}
+      MARIADB_PASSWORD: ${GLPI_DB_PASS}
+    volumes:
+      - glpi-db:/var/lib/mysql
+
+  glpi:
+    # TODO: replace with `build: .` if you have a custom Dockerfile in this folder
+    image: ${GLPI_IMAGE:-diouxx/glpi:latest}
+    restart: unless-stopped
+    environment:
+      TIMEZONE: Europe/Paris
+    depends_on:
+      - db
+    volumes:
+      - glpi-data:/var/www/html/glpi
+      - glpi-config:/var/www/html/glpi/config
+      - glpi-files:/var/www/html/glpi/files
+    ports:
+      - "8080:80"
+
+volumes:
+  glpi-db:
+  glpi-data:
+  glpi-config:
+  glpi-files:

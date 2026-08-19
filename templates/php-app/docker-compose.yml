@@ -1,0 +1,37 @@
+# ============================================================================
+# Internal PHP app — generic template
+# For your own PHP apps where you already have a working Dockerfile: drop it
+# in this same folder as ./Dockerfile and use `build: .` as shown. If the app
+# needs a DB, uncomment the db service and fill in backup.conf accordingly.
+# ============================================================================
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      # DB_HOST: db
+      # DB_NAME: ${APP_DB_NAME}
+      # DB_USER: ${APP_DB_USER}
+      # DB_PASSWORD: ${APP_DB_PASS}
+    volumes:
+      - app-storage:/var/www/html/storage   # adjust path to wherever this app writes persistent data
+    ports:
+      - "8090:80"
+    # depends_on:
+    #   - db
+
+  # db:
+  #   image: mariadb:11
+  #   restart: unless-stopped
+  #   environment:
+  #     MARIADB_DATABASE: ${APP_DB_NAME}
+  #     MARIADB_USER: ${APP_DB_USER}
+  #     MARIADB_PASSWORD: ${APP_DB_PASS}
+  #     MARIADB_ROOT_PASSWORD: ${APP_DB_ROOT_PASS}
+  #   volumes:
+  #     - app-db:/var/lib/mysql
+
+volumes:
+  app-storage:
+  # app-db:

@@ -1,0 +1,33 @@
+# ============================================================================
+# Internal Express + React app — generic template
+# Typical shape: an Express API container + a React build served either by
+# Nginx or by Express itself. Adjust to match how you actually built it —
+# if React is already built into static files served by Express, you only
+# need the single "api" service below and can delete "frontend".
+# ============================================================================
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile   # your existing Express Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      # DATABASE_URL: ${APP_DATABASE_URL}
+    volumes:
+      - app-data:/app/data   # only if the app writes persistent local data; delete if it's stateless / uses an external DB
+    ports:
+      - "8091:3000"
+
+  # Only needed if the React app is a separate static container instead of
+  # being served by Express directly.
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8092:80"
+
+volumes:
+  app-data:
