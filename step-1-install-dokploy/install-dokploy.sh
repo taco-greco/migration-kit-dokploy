@@ -28,6 +28,18 @@
 # No .env / target IP / domain config here on purpose. That comes later,
 # once this host has a fixed IP and we're migrating real apps onto it —
 # this script's only job is "get Dokploy running."
+#
+# Optional: if you already know this host's fixed IP (e.g. the network
+# admin has given it a reservation), pass it explicitly so Docker Swarm
+# binds to the address you intend rather than whatever it auto-detects —
+# this matters most on multi-NIC boxes like the real server. Confirmed from
+# Dokploy's own install.sh source that it honors this env var directly:
+#   sudo ADVERTISE_ADDR=192.168.5.38 ./install-dokploy.sh
+# If unset, Dokploy auto-detects a private IP itself (what happened on the
+# mini PC so far) — fine for now, just something to redo with an explicit
+# ADVERTISE_ADDR once the IP is actually fixed, so Swarm's identity matches
+# the address that's meant to be permanent, not whatever DHCP handed out
+# at install time.
 # ============================================================================
 set -euo pipefail
 
@@ -71,9 +83,22 @@ fi
 echo
 
 echo "== Installing Dokploy =="
-curl -sSL https://dokploy.com/install.sh | sh
+if [ -n "${ADVERTISE_ADDR:-}" ]; then
+  echo "Using explicit ADVERTISE_ADDR=${ADVERTISE_ADDR} for Docker Swarm."
+  curl -sSL https://dokploy.com/install.sh | ADVERTISE_ADDR="${ADVERTISE_ADDR}" sh
+else
+  echo "No ADVERTISE_ADDR set — letting Dokploy auto-detect a private IP."
+  curl -sSL https://dokploy.com/install.sh | sh
+fi
 
 echo
 echo "If the block above ended with 'Congratulations, Dokploy is installed!',"
 echo "open the printed http://<ip>:3000 URL to create the admin account, and"
 echo "save that URL + credentials in your password manager now."
+if [ -n "${ADVERTISE_ADDR:-}" ]; then
+  echo
+  echo "Sanity check the advertise address actually took:"
+  echo "  docker info --format '{{.Swarm.NodeAddr}}'"
+  echo "should print ${ADVERTISE_ADDR} — Dokploy's ADVERTISE_ADDR handling has"
+  echo "had reported bugs, so don't assume it silently, verify it."
+fi
