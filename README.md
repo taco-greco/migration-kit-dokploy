@@ -13,14 +13,20 @@ Step 1 is done and tested (see below). Steps 2/3 land in this repo as their own 
 ## Step 1 — install Dokploy
 
 ```
-sudo ./step-1-install-dokploy/install-dokploy.sh
+cd step-1-install-dokploy
+sudo bash install-dokploy.sh
 ```
 
 If this host already has a fixed IP (e.g. a DHCP reservation from your network admin), pin Docker Swarm to it explicitly instead of letting it auto-detect:
 
 ```
-sudo ADVERTISE_ADDR=<fixed-ip> ./step-1-install-dokploy/install-dokploy.sh
+sudo ADVERTISE_ADDR=<fixed-ip> bash install-dokploy.sh
 ```
+
+**Run it exactly like that — `sudo bash install-dokploy.sh` — not `sh install-dokploy.sh` and not bare `sudo install-dokploy.sh`.**
+- `sh install-dokploy.sh` fails with `Illegal option -o pipefail`: on Ubuntu/Debian, `sh` is `dash`, and the script's `#!/usr/bin/env bash` shebang only takes effect when you execute the file directly — explicitly invoking `sh` overrides it and dash doesn't support the `pipefail` option the script relies on.
+- `sudo install-dokploy.sh` (no `./` or path) fails with `command not found`: the shell only looks in `$PATH` for a bare command name, and the current directory isn't in `$PATH` by design.
+- `sudo bash install-dokploy.sh` sidesteps both — it forces bash explicitly and doesn't depend on `$PATH` or the file's executable bit.
 
 Requirements: a fresh Ubuntu or Debian host, run as root/sudo, network access. Nothing else to configure beforehand.
 
